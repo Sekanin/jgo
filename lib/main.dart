@@ -1,6 +1,52 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
+
+// Custom word pair implementation
+class CustomWordPair {
+  final String first;
+  final String second;
+
+  CustomWordPair(this.first, this.second);
+
+  String get asLowerCase => '$first $second'.toLowerCase();
+  String get asPascalCase => '${first[0].toUpperCase()}${first.substring(1)}${second[0].toUpperCase()}${second.substring(1)}';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CustomWordPair &&
+          runtimeType == other.runtimeType &&
+          first == other.first &&
+          second == other.second;
+
+  @override
+  int get hashCode => first.hashCode ^ second.hashCode;
+}
+
+// Custom word list
+class WordList {
+  static final List<String> firstWords = [
+    'Happy', 'Sunny', 'Rainy', 'Cloudy', 'Bright',
+    'Dark', 'Light', 'Heavy', 'Quick', 'Slow',
+    'Fast', 'Smart', 'Clever', 'Brave', 'Strong',
+    'Gentle', 'Kind', 'Wise', 'Calm', 'Wild'
+  ];
+
+  static final List<String> secondWords = [
+    'Day', 'Night', 'Morning', 'Evening', 'Afternoon',
+    'Sky', 'Ocean', 'Mountain', 'River', 'Forest',
+    'Garden', 'Flower', 'Tree', 'Bird', 'Star',
+    'Moon', 'Sun', 'Cloud', 'Rain', 'Wind'
+  ];
+
+  static CustomWordPair random() {
+    final random = Random();
+    final first = firstWords[random.nextInt(firstWords.length)];
+    final second = secondWords[random.nextInt(secondWords.length)];
+    return CustomWordPair(first, second);
+  }
+}
 
 void main() {
   runApp(MyApp());
@@ -26,8 +72,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var history = <WordPair>[];
+  var current = WordList.random();
+  var history = <CustomWordPair>[];
 
   GlobalKey? historyListKey;
 
@@ -35,13 +81,13 @@ class MyAppState extends ChangeNotifier {
     history.insert(0, current);
     var animatedList = historyListKey?.currentState as AnimatedListState?;
     animatedList?.insertItem(0);
-    current = WordPair.random();
+    current = WordList.random();
     notifyListeners();
   }
 
-  var favorites = <WordPair>[];
+  var favorites = <CustomWordPair>[];
 
-  void toggleFavorite([WordPair? pair]) {
+  void toggleFavorite([CustomWordPair? pair]) {
     pair = pair ?? current;
     if (favorites.contains(pair)) {
       favorites.remove(pair);
@@ -51,7 +97,7 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeFavorite(WordPair pair) {
+  void removeFavorite(CustomWordPair pair) {
     favorites.remove(pair);
     notifyListeners();
   }
@@ -205,7 +251,7 @@ class BigCard extends StatelessWidget {
     required this.pair,
   });
 
-  final WordPair pair;
+  final CustomWordPair pair;
 
   @override
   Widget build(BuildContext context) {
